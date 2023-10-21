@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import { AiOutlineNotification } from "react-icons/ai";
 import "react-toastify/dist/ReactToastify.css";
+import { zodResolver } from "@hookform/resolvers/zod"
+import Spinner from "@/app/components/Spinner";
 
 interface FormData {
   title: string;
@@ -16,11 +18,13 @@ interface FormData {
 
 const NewIssuePage: React.FC = () => {
   const navigate = useRouter();
+  const [error, setError] = useState("");
+  const [isSpinning, setIsSpinning] = useState(false)
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
   });
-  const [error, setError] = useState("");
+  
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -40,6 +44,7 @@ const NewIssuePage: React.FC = () => {
 
     //   
     if (response.ok) {
+        setIsSpinning(true)
         toast("Data sent successfully");
         navigate.push("/issues");
         setFormData({
@@ -51,6 +56,7 @@ const NewIssuePage: React.FC = () => {
         throw new Error(errorMessage || "An error occurred while processing the request.");
       }
     } catch (error) {
+      setIsSpinning(false)
       setError("Fields cannot be empty !");
     }
   };
@@ -85,7 +91,7 @@ const NewIssuePage: React.FC = () => {
           onChange={(value) => setFormData({ ...formData, description: value })}
           className="w-[60%]"
         />
-        <Button className="w-[60%]">Add New Issue</Button>
+        <Button className="w-[60%]" disabled={isSpinning}>Add New Issue {isSpinning && <Spinner />}</Button>
         <ToastContainer autoClose={false} />
       </form>
     </div>
